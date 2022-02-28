@@ -2,6 +2,7 @@ const router = require("express").Router();
 const bcrypt = require("bcrypt");
 
 const generateToken = require("../config/jwt.config");
+const isAuth = require("../middlewares/isAuth");
 
 const UserModel = require("../models/User.model");
 
@@ -69,4 +70,5 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.get("/profile", isAuth, async (req, res) => {});
 module.exports = router;
