@@ -7,7 +7,7 @@ const userSchema = new Schema({
     required: true,
     unique: true,
     trim: true,
-    match: /^[a-z0-9.]+@[a-z0-9]+\.[a-z]+\.([a-z]+)?$/i,
+    match: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
   },
   passwordHash: { type: String, required: true },
 });

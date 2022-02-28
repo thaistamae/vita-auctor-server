@@ -1,6 +1,8 @@
 const router = require("express").Router();
 const bcrypt = require("bcrypt");
 
+const UserModel = require("../models/User.model");
+
 const saltRounds = 10;
 
 router.post("/signup", async (req, res) => {
@@ -26,7 +28,9 @@ router.post("/signup", async (req, res) => {
       passwordHash: hashedPassword,
     });
 
-    return res.status(201).json(createdUser);
+    delete createdUser._doc.passwordHash;
+
+    return res.status(201).json(createdUser._doc);
   } catch (error) {
     console.error(error);
     return res.status(500).json(error);
