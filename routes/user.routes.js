@@ -1,6 +1,8 @@
 const router = require("express").Router();
 const bcrypt = require("bcrypt");
 
+const generateToken = require("../config/jwt.config");
+
 const UserModel = require("../models/User.model");
 
 const saltRounds = 10;
@@ -34,6 +36,36 @@ router.post("/signup", async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json(error);
+  }
+});
+
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await UserModel.findOne({ email: email });
+
+    if (!user) {
+      return res.status(400).json({ msg: "Wrong password or email." });
+    }
+
+    if (await bcrypt.compare(password, user.passwordHash)) {
+      delete user._doc.passwordHash;
+
+      const token = generateToken(user);
+
+      return res.status(200).json({
+        user: {
+          ...user._doc,
+        },
+        token: token,
+      });
+    } else {
+      return res.status(401).json({ msg: "Wrong password or email." });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ msg: JSON.stringify(error) });
   }
 });
 
