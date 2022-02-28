@@ -10,6 +10,8 @@ const userSchema = new Schema({
     match: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
   },
   passwordHash: { type: String, required: true },
+  isDisable: { type: Boolean, required: true, default: false },
+  disableAt: { type: Date },
 });
 
 const UserModel = model("User", userSchema);

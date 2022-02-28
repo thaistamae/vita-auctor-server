@@ -2,6 +2,7 @@ const router = require("express").Router();
 const bcrypt = require("bcrypt");
 
 const generateToken = require("../config/jwt.config");
+const attachCurrentUser = require("../middlewares/attachCurrentUser");
 const isAuth = require("../middlewares/isAuth");
 
 const UserModel = require("../models/User.model");
@@ -70,5 +71,64 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.get("/profile", isAuth, async (req, res) => {});
+router.get("/profile", isAuth, attachCurrentUser, (req, res) => {
+  try {
+    const loggedInUser = req.currentUser;
+    console.log(loggedInUser);
+    if (loggedInUser) {
+      console.log(loggedInUser);
+      return res.status(200).json(loggedInUser);
+    } else {
+      console.log(loggedInUser);
+      return res.status(404).json({ msg: "User not found." });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ msg: JSON.stringify(error) });
+  }
+});
+
+router.patch("/profile/update", isAuth, attachCurrentUser, async (req, res) => {
+  try {
+    const loggedInUser = req.currentUser;
+
+    const updatedUser = await UserModel.findOneAndUpdate(
+      { _id: loggedInUser._id },
+      { ...req.body },
+      { new: true, runValidators: true }
+    );
+
+    return res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ msg: JSON.stringify(error) });
+  }
+});
+
+router.delete(
+  "/disable-account",
+  isAuth,
+  attachCurrentUser,
+  async (req, res) => {
+    try {
+      const loggedInUser = req.currentUser;
+
+      await UserModel.findOneAndUpdate(
+        {
+          _id: loggedInUser._id,
+        },
+        {
+          isDisable: true,
+          disableAt: Date.now(),
+        }
+      );
+
+      return res.status(200).json({ msg: "Deletado com sucesso!" });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ msg: JSON.stringify(error) });
+    }
+  }
+);
+
 module.exports = router;
