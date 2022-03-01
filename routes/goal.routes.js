@@ -5,8 +5,8 @@ const isAuth = require("../middlewares/isAuth");
 const UserModel = require("../models/User.model");
 const GoalModel = require("../models/Goal.model");
 
-const updateDBDocument = require("../utility/update");
-const isOwner = require("../utility/isOwner");
+const updateDBDocument = require("../utilities/update");
+const isOwner = require("../utilities/isOwner");
 
 router.post("/create-goal", isAuth, attachCurrentUser, async (req, res) => {
   try {
