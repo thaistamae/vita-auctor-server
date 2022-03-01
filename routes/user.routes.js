@@ -37,7 +37,11 @@ router.post("/signup", async (req, res) => {
     return res.status(201).json(createdUser._doc);
   } catch (error) {
     console.error(error);
-    return res.status(500).json(error);
+
+    if (error.code === 11000) {
+      return res.status(400).json(error.message ? error.message : null);
+    }
+    return res.status(500).json({ msg: JSON.stringify(error) });
   }
 });
 
