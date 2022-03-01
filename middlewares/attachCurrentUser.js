@@ -22,6 +22,6 @@ module.exports = async (req, res, next) => {
     next();
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ msg: JSON.stringify(error) });
+    return res.status(500).json(error);
   }
 };
