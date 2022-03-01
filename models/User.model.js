@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const { Schema, model } = require("mongoose");
 
 const userSchema = new Schema({
@@ -10,6 +11,7 @@ const userSchema = new Schema({
     match: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
   },
   passwordHash: { type: String, required: true },
+  goals: [{ type: mongoose.Types.ObjectId, ref: "Goal" }],
 });
 
 const UserModel = model("User", userSchema);
