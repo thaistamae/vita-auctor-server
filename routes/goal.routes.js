@@ -31,4 +31,20 @@ router.post("/create-goal", isAuth, attachCurrentUser, async (req, res) => {
   }
 });
 
+router.get("/my-goals", isAuth, attachCurrentUser, async (req, res) => {
+  try {
+    const loggedInUser = req.currentUser;
+
+    const userGoals = await GoalModel.find(
+      { owner: loggedInUser._id },
+      { owner: 0, tasks: 0 }
+    );
+
+    return res.status(200).json(userGoals);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json(error);
+  }
+});
+
 module.exports = router;
