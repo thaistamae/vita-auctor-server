@@ -38,4 +38,78 @@ router.post(
   }
 );
 
+router.patch(
+  "/edit-title/:taskId",
+  isAuth,
+  attachCurrentUser,
+  async (req, res) => {
+    try {
+      const taskToUpdate = await TaskModel.findOneAndUpdate(
+        { _id: req.params.taskId },
+        { title: req.body.title },
+        { new: true, runValidators: true }
+      );
+
+      return res.status(200).json(taskToUpdate);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json(error);
+    }
+  }
+);
+
+router.patch(
+  "/toggle-status/:taskId",
+  isAuth,
+  attachCurrentUser,
+  async (req, res) => {
+    try {
+      const taskToEdit = await TaskModel.findOne({ _id: req.params.taskId });
+
+      const taskWithNewStatus = await TaskModel.findByIdAndUpdate(
+        {
+          _id: req.params.taskId,
+        },
+        {
+          isDone: !taskToEdit.isDone ? true : false,
+        },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+
+      if (taskWithNewStatus.isDone === true) {
+        const goalToCheck = await GoalModel.findOne({
+          _id: taskWithNewStatus.goal,
+        }).populate("tasks");
+
+        const goalTasksFilter = goalToCheck.tasks.filter(
+          (currentTask) => currentTask.isDone === false
+        );
+
+        console.log(goalTasksFilter);
+
+        if (goalTasksFilter.length === 0) {
+          const updateGoal = await GoalModel.findOneAndUpdate(
+            {
+              _id: goalToCheck._id,
+            },
+            {
+              isComplete: true,
+            }
+          ).populate("tasks");
+
+          return res.status(200).json(updateGoal);
+        }
+      }
+
+      return res.status(200).json(taskWithNewStatus);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json(error);
+    }
+  }
+);
+
 module.exports = router;
