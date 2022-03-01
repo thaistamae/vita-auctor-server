@@ -113,17 +113,11 @@ router.delete(
     try {
       const loggedInUser = req.currentUser;
 
-      await UserModel.findOneAndUpdate(
-        {
-          _id: loggedInUser._id,
-        },
-        {
-          isDisable: true,
-          disableAt: Date.now(),
-        }
-      );
+      const deletedUser = await UserModel.deleteOne({
+        _id: loggedInUser._id,
+      });
 
-      return res.status(200).json({ msg: "Deletado com sucesso!" });
+      return res.status(200).json(deletedUser);
     } catch (error) {
       console.error(error);
       return res.status(500).json({ msg: JSON.stringify(error) });
