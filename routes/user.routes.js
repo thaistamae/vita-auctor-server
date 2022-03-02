@@ -35,13 +35,14 @@ router.post("/signup", async (req, res) => {
     delete createdUser._doc.passwordHash;
 
     return res.status(201).json(createdUser._doc);
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.log(err);
 
-    if (error.code === 11000) {
-      return res.status(400).json(error.message ? error.message : null);
+    if (err.code === 11000) {
+      return res.status(400).json(err.message ? err.message : err);
     }
-    return res.status(500).json({ msg: JSON.stringify(error) });
+
+    res.status(500).json(err);
   }
 });
 
@@ -69,9 +70,14 @@ router.post("/login", async (req, res) => {
     } else {
       return res.status(401).json({ msg: "Wrong password or email." });
     }
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ msg: JSON.stringify(error) });
+  } catch (err) {
+    console.log(err);
+
+    if (err.code === 11000) {
+      return res.status(400).json(err.message ? err.message : err);
+    }
+
+    res.status(500).json(err);
   }
 });
 
@@ -86,9 +92,14 @@ router.get("/profile", isAuth, attachCurrentUser, (req, res) => {
       console.log(loggedInUser);
       return res.status(404).json({ msg: "User not found." });
     }
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ msg: JSON.stringify(error) });
+  } catch (err) {
+    console.log(err);
+
+    if (err.code === 11000) {
+      return res.status(400).json(err.message ? err.message : err);
+    }
+
+    res.status(500).json(err);
   }
 });
 
@@ -103,9 +114,14 @@ router.patch("/profile/update", isAuth, attachCurrentUser, async (req, res) => {
     );
 
     return res.status(200).json(updatedUser);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ ...error });
+  } catch (err) {
+    console.log(err);
+
+    if (err.code === 11000) {
+      return res.status(400).json(err.message ? err.message : err);
+    }
+
+    res.status(500).json(err);
   }
 });
 

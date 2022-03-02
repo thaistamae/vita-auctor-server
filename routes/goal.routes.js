@@ -29,9 +29,14 @@ router.post("/create-goal", isAuth, attachCurrentUser, async (req, res) => {
     );
 
     return res.status(201).json(createGoal);
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ ...error });
+  } catch (err) {
+    console.log(err);
+
+    if (err.code === 11000) {
+      return res.status(400).json(err.message ? err.message : err);
+    }
+
+    res.status(500).json(err);
   }
 });
 
@@ -80,9 +85,14 @@ router.patch(
       );
 
       return res.status(200).json(goalUpdated);
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ ...error });
+    } catch (err) {
+      console.log(err);
+
+      if (err.code === 11000) {
+        return res.status(400).json(err.message ? err.message : err);
+      }
+
+      res.status(500).json(err);
     }
   }
 );
@@ -97,9 +107,9 @@ router.delete(
       const removedGoal = await GoalModel.deleteOne({ _id: req.params.id });
 
       return res.status(200).json(removedGoal);
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ ...error });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json(err);
     }
   }
 );

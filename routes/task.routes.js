@@ -28,9 +28,14 @@ router.post(
       ).populate("tasks");
 
       return res.status(200).json(updateGoal);
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ ...error });
+    } catch (err) {
+      console.log(err);
+
+      if (err.code === 11000) {
+        return res.status(400).json(err.message ? err.message : err);
+      }
+
+      res.status(500).json(err);
     }
   }
 );
@@ -49,9 +54,14 @@ router.patch(
       );
 
       return res.status(200).json(taskToUpdate);
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ ...error });
+    } catch (err) {
+      console.log(err);
+
+      if (err.code === 11000) {
+        return res.status(400).json(err.message ? err.message : err);
+      }
+
+      res.status(500).json(err);
     }
   }
 );
@@ -104,9 +114,14 @@ router.patch(
       }
 
       return res.status(200).json(taskWithNewStatus);
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ ...error });
+    } catch (err) {
+      console.log(err);
+
+      if (err.code === 11000) {
+        return res.status(400).json(err.message ? err.message : err);
+      }
+
+      res.status(500).json(err);
     }
   }
 );
@@ -121,9 +136,10 @@ router.delete(
       const deleted = await TaskModel.deleteOne({ _id: req.params.taskId });
 
       return res.status(200).json(deleted);
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ ...error });
+    } catch (err) {
+      console.log(err);
+
+      res.status(500).json(err);
     }
   }
 );
