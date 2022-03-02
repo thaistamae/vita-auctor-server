@@ -2,23 +2,20 @@ const router = require("express").Router();
 const attachCurrentUser = require("../middlewares/attachCurrentUser");
 const isAuth = require("../middlewares/isAuth");
 
-const updateDBDocument = require("../utilities/update");
-const isOwner = require("../utilities/isOwner");
+const updateDocument = require("../utilities/update");
+const isOwner = require("../middlewares/isOwner");
 
 const GoalModel = require("../models/Goal.model");
 const TaskModel = require("../models/Task.model");
+const { route } = require("express/lib/router");
 
 router.post(
-  "/create-task/:goalId",
+  "/:goalId/create-task",
   isAuth,
   attachCurrentUser,
+  isOwner,
   async (req, res) => {
     try {
-      const loggedInUser = req.currentUser;
-      const findGoal = await GoalModel.findOne({ _id: req.params.goalId });
-
-      isOwner(findGoal.owner, loggedInUser._id);
-
       const task = await TaskModel.create({
         ...req.body,
         goal: req.params.goalId,
@@ -33,15 +30,16 @@ router.post(
       return res.status(200).json(updateGoal);
     } catch (error) {
       console.log(error);
-      return res.status(500).json(error);
+      return res.status(500).json({ ...error });
     }
   }
 );
 
 router.patch(
-  "/edit-title/:taskId",
+  "/:goalId/edit-title/:taskId",
   isAuth,
   attachCurrentUser,
+  isOwner,
   async (req, res) => {
     try {
       const taskToUpdate = await TaskModel.findOneAndUpdate(
@@ -53,15 +51,16 @@ router.patch(
       return res.status(200).json(taskToUpdate);
     } catch (error) {
       console.log(error);
-      return res.status(500).json(error);
+      return res.status(500).json({ ...error });
     }
   }
 );
 
 router.patch(
-  "/toggle-status/:taskId",
+  "/:goalId/toggle-status/:taskId",
   isAuth,
   attachCurrentUser,
+  isOwner,
   async (req, res) => {
     try {
       const taskToEdit = await TaskModel.findOne({ _id: req.params.taskId });
@@ -107,7 +106,24 @@ router.patch(
       return res.status(200).json(taskWithNewStatus);
     } catch (error) {
       console.log(error);
-      return res.status(500).json(error);
+      return res.status(500).json({ ...error });
+    }
+  }
+);
+
+router.delete(
+  "/:goalId/delete-task/:taskId",
+  isAuth,
+  attachCurrentUser,
+  isOwner,
+  async (req, res) => {
+    try {
+      const deleted = await TaskModel.deleteOne({ _id: req.params.taskId });
+
+      return res.status(200).json(deleted);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ ...error });
     }
   }
 );

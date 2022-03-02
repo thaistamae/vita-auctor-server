@@ -105,7 +105,7 @@ router.patch("/profile/update", isAuth, attachCurrentUser, async (req, res) => {
     return res.status(200).json(updatedUser);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ msg: JSON.stringify(error) });
+    return res.status(500).json({ ...error });
   }
 });
 
@@ -124,7 +124,7 @@ router.delete(
       return res.status(200).json(deletedUser);
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ msg: JSON.stringify(error) });
+      return res.status(500).json({ ...error });
     }
   }
 );

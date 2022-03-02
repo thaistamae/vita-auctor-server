@@ -1,12 +1,13 @@
 const router = require("express").Router();
+
 const attachCurrentUser = require("../middlewares/attachCurrentUser");
 const isAuth = require("../middlewares/isAuth");
+const isOwner = require("../middlewares/isOwner");
 
 const UserModel = require("../models/User.model");
 const GoalModel = require("../models/Goal.model");
 
-const updateDBDocument = require("../utilities/update");
-const isOwner = require("../utilities/isOwner");
+const updateDocument = require("../utilities/update");
 
 router.post("/create-goal", isAuth, attachCurrentUser, async (req, res) => {
   try {
@@ -30,7 +31,7 @@ router.post("/create-goal", isAuth, attachCurrentUser, async (req, res) => {
     return res.status(201).json(createGoal);
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ msg: JSON.stringify(error) });
+    return res.status(500).json({ ...error });
   }
 });
 
@@ -46,37 +47,33 @@ router.get("/my-goals", isAuth, attachCurrentUser, async (req, res) => {
     return res.status(200).json(userGoals);
   } catch (error) {
     console.log(error);
-    return res.status(500).json(error);
+    return res.status(500).json({ ...error });
   }
 });
 
-router.get("/user-goal/:id", isAuth, attachCurrentUser, async (req, res) => {
-  try {
-    const loggedInUser = req.currentUser;
-
-    const foundedGoal = await GoalModel.findOne({ _id: req.params.id });
-    isOwner(foundedGoal.owner, loggedInUser._id);
-
-    return res.status(200).json(foundedGoal);
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json(error);
-  }
-});
-
-router.patch(
-  "/user-goal/update/:id",
+router.get(
+  "/user-goal/:goalId",
   isAuth,
   attachCurrentUser,
+  isOwner,
   async (req, res) => {
     try {
-      const loggedInUser = req.currentUser;
+      return res.status(200).json(foundedGoal);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ ...error });
+    }
+  }
+);
 
-      const foundedGoal = await GoalModel.findOne({ _id: req.params.id });
-
-      isOwner(foundedGoal.owner, loggedInUser._id);
-
-      const goalUpdated = await updateDBDocument(
+router.patch(
+  "/user-goal/update/:goalId",
+  isAuth,
+  attachCurrentUser,
+  isOwner,
+  async (req, res) => {
+    try {
+      const goalUpdated = await updateDocument(
         GoalModel,
         { _id: foundedGoal._id },
         req.body
@@ -85,28 +82,24 @@ router.patch(
       return res.status(200).json(goalUpdated);
     } catch (error) {
       console.log(error);
-      return res.status(500).json(error);
+      return res.status(500).json({ ...error });
     }
   }
 );
 
 router.delete(
-  "/user-goal/delete/:id",
+  "/user-goal/delete/:goalId",
   isAuth,
   attachCurrentUser,
+  isOwner,
   async (req, res) => {
     try {
-      const loggedInUser = req.currentUser;
-      const foundedGoal = await GoalModel.findOne({ _id: req.params.id });
-
-      isOwner(foundedGoal.owner, loggedInUser._id);
-
       const removedGoal = await GoalModel.deleteOne({ _id: req.params.id });
 
       return res.status(200).json(removedGoal);
     } catch (error) {
       console.log(error);
-      return res.status(500).json(error);
+      return res.status(500).json({ ...error });
     }
   }
 );
