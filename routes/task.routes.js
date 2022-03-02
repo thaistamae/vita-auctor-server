@@ -2,7 +2,7 @@ const router = require("express").Router();
 const attachCurrentUser = require("../middlewares/attachCurrentUser");
 const isAuth = require("../middlewares/isAuth");
 
-const updateDocument = require("../utilities/update");
+const updateDocument = require("../utilities/updateDocument");
 const isOwner = require("../middlewares/isOwner");
 
 const GoalModel = require("../models/Goal.model");
